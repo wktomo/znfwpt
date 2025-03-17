@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>助农服务大厅</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #e9f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .navbar {
+            background-color: #2e8b57; /* 深绿色 */
+            width: 220px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            transition: background-color 0.3s, transform 0.3s;
+            text-align: left; /* 左对齐 */
+            position: relative;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar a:hover {
+            background-color: #3cb371; /* 浅绿色 */
+            transform: scale(1.05);
+        }
+        .navbar a:active {
+            background-color: #2e8b57;
+        }
+        .submenu {
+            display: none;
+            position: absolute;
+            left: 220px;
+            top: 0;
+            background-color: #3cb371;
+            width: 180px;
+            flex-direction: column;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+        }
+        .navbar a:hover + .submenu, .submenu:hover {
+            display: flex;
+        }
+        .submenu a {
+            padding: 10px;
+            text-align: left;
+        }
+        .search-box {
+            margin: 10px;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 80%;
+        }
+        .content {
+            flex-grow: 1;
+            margin: 20px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        /* 改进后的面包屑导航 */
+        .breadcrumb {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 14px;
+            color: #2e8b57; /* 深绿色 */
+            font-weight: bold;
+        }
+        .breadcrumb a {
+            color: #2e8b57;
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        /* 改进后的小喇叭滚动效果 */
+        .announcement {
+            width: 100%;
+            background-color: #f0f9ff; /* 浅蓝色背景 */
+            color: #2e8b57; /* 深绿色文字 */
+            padding: 10px;
+            margin-top: 20px; /* 调整与标题的距离 */
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .announcement-content {
+            display: flex;
+            animation: scroll 10s linear infinite;
+            white-space: nowrap;
+        }
+        .announcement-item {
+            margin-right: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+        /* 改进后的内容区域 */
+        .content {
+            background-color: #f0f9ff; /* 浅蓝色背景 */
+            padding: 20px;
+            margin-top: 20px; /* 调整与标题的距离 */
+        }
+        /* 动态内容区域 */
+        .dynamic-content {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        /* 用户信息样式 */
+        .user-info {
+            margin-top: 20px;
+        }
+        .user-info h3 {
+            color: #2e8b57; /* 深绿色 */
+        }
+        .user-info p {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <input type="text" class="search-box" placeholder="搜索...">
+        <a href="#user-management">用户管理</a>
+        <div class="submenu">
+            <a href="#add-user" onclick="showAddUserContent()">添加用户</a>
+            <a href="#edit-user" onclick="showEditUserContent()">编辑用户</a>
+        </div>
+        <a href="#policy-analysis">政策分析</a>
+        <div class="submenu">
+            <a href="#report-1">报告1</a>
+            <a href="#report-2">报告2</a>
+        </div>
+        <a href="#transaction-info" onclick="showTransactionInfo()">交易信息</a>
+        <a href="#public-channel" onclick="showPublicChannel()">公共频道</a>
+        <a href="#my-info" onclick="showMyInfo()">我的信息</a>
+    </div>
+    <div class="content">
+        <!-- 改进后的面包屑导航 -->
+        <div class="breadcrumb">
+            <a href="#">首页</a> &gt; <a href="#">用户面板</a> &gt; 当前页面
+        </div>
+        <!-- 改进后的小喇叭滚动效果 -->
+        <div class="announcement">
+            <div class="announcement-content">
+                <div class="announcement-item">欢迎使用在线助农平台，本产品由强信团队打造</div>
+                <div class="announcement-item">本平台为广大农民提供优质的信贷服务</div>
+                <div class="announcement-item">诚心的祝愿各位同志早日实现共同富裕</div>
+            </div>
+        </div>
+        <!-- 动态内容区域 -->
+        <div class="dynamic-content" id="dynamic-content">
+            <p>这里是用户登录后的界面。</p>
+        </div>
+    </div>
+
+    <script>
+        // 模拟用户数据
+        const users = [
+            { id: 1, username: '张三', email: 'zhangsan@example.com', role: '管理员' },
+            { id: 2, username: '李四', email: 'lisi@example.com', role: '普通用户' },
+            { id: 3, username: '王五', email: 'wangwu@example.com', role: '管理员' },
+        ];
+
+        // 模拟交易数据
+        const transactions = [
+            { id: 1, date: '2024-10-01', amount: 5000, status: '已完成' },
+            { id: 2, date: '2024-10-05', amount: 3000, status: '已完成' },
+            { id: 3, date: '2024-10-10', amount: 8000, status: '已完成' },
+        ];
+
+        // 模拟公共频道数据
+        const publicMessages = [
+            { id: 1, title: '公告1', content: '这是第一条公告内容。' },
+            { id: 2, title: '公告2', content: '这是第二条公告内容。' },
+            { id: 3, title: '公告3', content: '这是第三条公告内容。' },
+        ];
+
+        // 模拟当前用户信息
+        const currentUser = {
+            id: 1,
+            username: '张三',
+            email: 'zhangsan@example.com',
+            role: '管理员',
+            registrationDate: '2024-01-01',
+            lastLogin: '2024-10-20',
+        };
+
+        // 显示添加用户内容
+        function showAddUserContent() {
+            document.getElementById('dynamic-content').innerHTML = `
+                <h2>添加用户</h2>
+                <form>
+                    <label for="username">用户名：</label>
+                    <input type="text" id="username" name="username" required><br><br>
+                    <label for="email">邮箱：</label>
+                    <input type="email" id="email" name="email" required><br><br>
+                    <label for="role">角色：</label>
+                    <select id="role" name="role">
+                        <option value="admin">管理员</option>
+                        <option value="user">普通用户</option>
+                    </select><br><br>
+                    <button type="submit" onclick="addUser(event)">提交</button>
+                </form>
+            `;
+        }
+
+        // 添加用户
+        function addUser(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const role = document.getElementById('role').value;
+            const newUser = { id: users.length + 1, username, email, role };
+            users.push(newUser);
+            alert('用户添加成功！');
+            showEditUserContent(); // 刷新用户列表
+        }
+
+        // 显示编辑用户内容
+        function showEditUserContent() {
+            document.getElementById('dynamic-content').innerHTML = `
+                <h2>编辑用户</h2>
+                <table class="user-list">
+                    <thead>
+                        <tr>
+                            <th>用户名</th>
+                            <th>邮箱</th>
+                            <th>角色</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td>${user.username}</td>
+                                <td>${user.email}</td>
+                                <td>${user.role}</td>
+                                <td>
+                                    <button class="edit-button" onclick="editUser(${user.id})">编辑</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // 编辑用户
+        function editUser(userId) {
+            const user = users.find(u => u.id === userId);
+            const newUsername = prompt('请输入新的用户名：', user.username);
+            const newEmail = prompt('请输入新的邮箱：', user.email);
+            const newRole = prompt('请输入新的角色（管理员/普通用户）：', user.role);
+            if (newUsername && newEmail && newRole) {
+                user.username = newUsername;
+                user.email = newEmail;
+                user.role = newRole === '管理员' ? '管理员' : '普通用户';
+                alert('用户信息更新成功！');
+                showEditUserContent(); // 刷新用户列表
+            }
+        }
+
+        // 显示交易信息
+        function showTransactionInfo() {
+            document.getElementById('dynamic-content').innerHTML = `
+                <h2>交易信息</h2>
+                <table class="transaction-table">
+                    <thead>
+                        <tr>
+                            <th>交易ID</th>
+                            <th>日期</th>
+                            <th>金额</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${transactions.map(transaction => `
+                            <tr>
+                                <td>${transaction.id}</td>
+                                <td>${transaction.date}</td>
+                                <td>￥${transaction.amount}</td>
+                                <td>${transaction.status}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // 显示公共频道内容
+        function showPublicChannel() {
+            document.getElementById('dynamic-content').innerHTML = `
+                <h2>公共频道</h2>
+                <div class="public-channel">
+                    <h3>最新公告</h3>
+                    <ul>
+                        ${publicMessages.map(message => `
+                            <li>
+                                <h4>${message.title}</h4>
+                                <p>${message.content}</p>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        // 显示我的信息
+        function showMyInfo() {
+            document.getElementById('dynamic-content').innerHTML = `
+                <h2>我的信息</h2>
+                <div class="user-info">
+                    <h3>个人信息</h3>
+                    <p><strong>用户名：</strong>${currentUser.username}</p>
+                    <p><strong>邮箱：</strong>${currentUser.email}</p>
+                    <p><strong>角色：</strong>${currentUser.role}</p>
+                    <p><strong>注册日期：</strong>${currentUser.registrationDate}</p>
+                    <p><strong>上次登录：</strong>${currentUser.lastLogin}</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

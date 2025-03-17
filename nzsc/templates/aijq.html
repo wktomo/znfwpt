@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 机器人对话</title>
+    <style>
+        /* Base Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f0f8ff;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Dark Theme */
+        body.dark-theme {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .robot-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .robot:hover {
+            transform: scale(1.1);
+        }
+
+        .robot {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .robot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .chat-container {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            background: #ffffff;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .chat-box {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            font-size: 14px;
+            padding: 10px;
+            border-radius: 20px;
+            max-width: 70%;
+        }
+
+        .user-message {
+            background: #4caf50;
+            color: white;
+            float: right;
+            margin-left: auto;
+            animation: slideInRight 0.5s ease-in-out;
+        }
+
+        .ai-message {
+            background: #e0e0e0;
+            color: #333;
+            float: left;
+            margin-right: auto;
+            animation: slideInLeft 0.5s ease-in-out;
+        }
+
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f5f5f5;
+            border-top: 1px solid #ddd;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        .send-button {
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            padding: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .send-button:hover {
+            background: #45a049;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" id="theme-toggle">🌙</div>
+    <div class="robot-container">
+        <div class="robot" id="robot">
+            <!-- 替换为你的机器人图片 -->
+            <img src="https://via.placeholder.com/100x100?text=AI+机器人" alt="AI 机器人">
+        </div>
+    </div>
+
+    <!-- 聊天界面 -->
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box">
+            <!-- 对话记录将显示在此处 -->
+        </div>
+        <div class="input-container">
+            <textarea class="message-input" id="user-input" placeholder="输入你的消息..."></textarea>
+            <button class="send-button" id="send-button">发送</button>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle
+        const themeToggle = document.getElementById("theme-toggle");
+        const body = document.body;
+
+        themeToggle.addEventListener("click", () => {
+            body.classList.toggle("dark-theme");
+            themeToggle.textContent = body.classList.contains("dark-theme") ? "☀️" : "🌙";
+        });
+
+        // OpenAI API configuration (Backend Proxy)
+        const API_URL = "/api/chat";
+
+        // Select elements
+        const robot = document.getElementById("robot");
+        const chatContainer = document.querySelector(".chat-container");
+        const userInput = document.getElementById("user-input");
+        const sendButton = document.getElementById("send-button");
+        const chatBox = document.getElementById("chat-box");
+
+        // Toggle chat interface on robot click
+        robot.addEventListener("click", () => {
+            chatContainer.style.display = chatContainer.style.display === "none" ? "block" : "none";
+        });
+
+        // Handle user input submission
+        sendButton.addEventListener("click", async () => {
+            const userMessage = userInput.value.trim();
+            if (userMessage === "") return;
+            sendMessage(userMessage, "user");
+            userInput.value = "";
+            await getAIResponse(userMessage);
+        });
+
+        // Send user message and append to chat box
+        function sendMessage(message, sender) {
+            const messageDiv = document.createElement("div");
+            messageDiv.className = sender === "user" ? "message user-message" : "message ai-message";
+            messageDiv.textContent = message;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Get AI response using Backend Proxy
+        async function getAIResponse(userMessage) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message: userMessage })
+                });
+
+                if (!response.ok) {
+                    throw new Error("网络响应错误");
+                }
+
+                const data = await response.json();
+                const aiResponse = data.response.trim();
+                sendMessage(aiResponse, "ai");
+            } catch (error) {
+                console.error("获取 AI 回复时出错:", error);
+                sendMessage("获取回复时出错", "ai");
+            }
+        }
+
+        // Load previous conversation history
+        const savedMessages = JSON.parse(localStorage.getItem("chatHistory")) || [];
+        savedMessages.forEach(message => {
+            sendMessage(message, "user");
+            sendMessage("AI 回复", "ai"); // Replace with actual AI response
+        });
+
+        // Save new messages to localStorage
+        window.addEventListener("beforeunload", () => {
+            const messages = Array.from(chatBox.children).map(msg => msg.textContent);
+            localStorage.setItem("chatHistory", JSON.stringify(messages));
+        });
+    </script>
+</body>
+</html>
