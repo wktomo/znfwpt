@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>强信·农创未来 - 基于区块链资金交易管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-color: #f9f9f9;
+            --card-color: #ffffff;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 导航栏样式 */
+        nav {
+            background-color: var(--primary-color);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* 主要内容区域样式 */
+        .main-content {
+            padding-top: 30px;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .transaction-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        input {
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .transactions-container {
+            overflow-x: auto;
+        }
+
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .transactions-table th,
+        .transactions-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .transactions-table th {
+            background-color: var(--secondary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .transactions-table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--secondary-color);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .transactions-table {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <span>强信团队</span>
+            </div>
+            <div class="nav-links">
+                <a href="#"><i class="fas fa-home"></i> 首页</a>
+                <a href="#"><i class="fas fa-exchange-alt"></i> 交易管理</a>
+                <a href="#"><i class="fas fa-wallet"></i> 钱包管理</a>
+                <a href="#"><i class="fas fa-cog"></i> 设置</a>
+            </div>
+            <div class="user-profile">
+                <img src="D:\\Users\10532\\PycharmProjects\\nzsc\\assets\\Images\\团队logo.jpeg" alt="User Profile">
+                <span>用户名</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <div class="container main-content">
+        <h1>区块链交易管理</h1>
+        <p class="tagline">强信出品，必属精品</p>
+
+        <div class="card">
+            <h2>提交新交易</h2>
+            <form class="transaction-form" id="transactionForm">
+                <div class="form-group">
+                    <label for="sender">发送方</label>
+                    <input type="text" id="sender" name="sender" required>
+                </div>
+                <div class="form-group">
+                    <label for="receiver">接收方</label>
+                    <input type="text" id="receiver" name="receiver" required>
+                </div>
+                <div class="form-group">
+                    <label for="amount">金额</label>
+                    <input type="number" id="amount" name="amount" step="0.01" required>
+                </div>
+                <button type="button" onclick="addTransaction()">
+                    <span class="loader" style="display: none;"></span>
+                    <span>提交交易</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>交易记录</h2>
+            <div class="transactions-container">
+                <table class="transactions-table" id="transactionList">
+                    <thead>
+                        <tr>
+                            <th>区块索引</th>
+                            <th>发送方</th>
+                            <th>接收方</th>
+                            <th>金额</th>
+                            <th>时间戳</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5" style="text-align: center;">
+                                <div class="loader"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function addTransaction() {
+            const sender = document.getElementById('sender').value;
+            const receiver = document.getElementById('receiver').value;
+            const amount = document.getElementById('amount').value;
+
+            if (!sender || !receiver || !amount) {
+                alert("请填写所有字段！");
+                return;
+            }
+
+            const button = document.querySelector('button');
+            const loader = button.querySelector('.loader');
+            const buttonText = button.querySelector('span:last-child');
+
+            try {
+                loader.style.display = 'inline-block';
+                buttonText.textContent = '处理中...';
+
+                const response = await fetch('http://127.0.0.1:5000/transaction', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ sender, receiver, amount })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert("交易成功！");
+                    document.getElementById('transactionForm').reset();
+                    fetchTransactions();
+                } else {
+                    alert(`交易失败: ${data.error}`);
+                }
+            } catch (error) {
+                console.error("网络错误:", error);
+                alert("网络错误，请稍后再试！");
+            } finally {
+                loader.style.display = 'none';
+                buttonText.textContent = '提交交易';
+            }
+        }
+
+        async function fetchTransactions() {
+            const tableBody = document.querySelector('.transactions-table tbody');
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;"><div class="loader"></div></td></tr>';
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/chain');
+                const data = await response.json();
+
+                if (response.ok) {
+                    tableBody.innerHTML = '';
+                    data.chain.forEach(block => {
+                        if (block.index > 0) { // 跳过创世区块
+                            block.transactions.forEach(tx => {
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                    <td>${block.index}</td>
+                                    <td>${tx.data.sender}</td>
+                                    <td>${tx.data.receiver}</td>
+                                    <td>${tx.data.amount}</td>
+                                    <td>${new Date(tx.data.timestamp * 1000).toLocaleString()}</td>
+                                `;
+                                tableBody.appendChild(row);
+                            });
+                        }
+                    });
+                } else {
+                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">加载交易记录失败，请稍后再试！</td></tr>';
+                }
+            } catch (error) {
+                console.error("网络错误:", error);
+                tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">加载交易记录失败，请稍后再试！</td></tr>';
+            }
+        }
+
+        // 初始化时加载交易记录
+        fetchTransactions();
+    </script>
+</body>
+</html>
