@@ -16,9 +16,12 @@ DEFAULT_DB_FILE = "blockchain.db"
 # 加载配置
 def load_config(config_file: str = CONFIG_FILE) -> dict:
     """从配置文件加载配置"""
+    logging.info(f"尝试加载配置文件: {config_file}")
     try:
         with open(config_file, "r", encoding="utf-8") as f:
-            return json.load(f)
+            config = json.load(f)
+            logging.info(f"配置文件加载成功: {config}")
+            return config
     except FileNotFoundError:
         logging.warning(f"配置文件 {config_file} 未找到，使用默认配置。")
         return {"db_file": DEFAULT_DB_FILE}
@@ -83,15 +86,13 @@ def save_block(block: Block):
             cursor = conn.cursor()
             cursor.execute(
                 "INSERT INTO blockchain (block_index, hash, previous_hash, timestamp, transactions) VALUES (?, ?, ?, ?, ?)",
-                (block.block_index, block.hash, block.previous_hash, block.timestamp, json.dumps(block.transactions))
+                (block.index, block.hash, block.previous_hash, block.timestamp, json.dumps(block.transactions))
             )
             conn.commit()
-        logging.info(f"Block {block.block_index} saved successfully.")
+        logging.info(f"Block {block.index} saved successfully.")
     except sqlite3.Error as e:
         logging.error(f"Error saving block: {e}")
         conn.rollback()
-
-
 # 查询区块
 def fetch_block(block_index: int) -> Optional[Block]:
     """从数据库中获取指定索引的区块"""

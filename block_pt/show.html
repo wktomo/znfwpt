@@ -299,86 +299,87 @@
     </div>
 
     <script>
-        async function addTransaction() {
-            const sender = document.getElementById('sender').value;
-            const receiver = document.getElementById('receiver').value;
-            const amount = document.getElementById('amount').value;
+async function addTransaction() {
+    const sender = document.getElementById('sender').value;
+    const receiver = document.getElementById('receiver').value;
+    const amount = document.getElementById('amount').value;
 
-            if (!sender || !receiver || !amount) {
-                alert("请填写所有字段！");
-                return;
-            }
+    if (!sender || !receiver || !amount) {
+        alert("请填写所有字段！");
+        return;
+    }
 
-            const button = document.querySelector('button');
-            const loader = button.querySelector('.loader');
-            const buttonText = button.querySelector('span:last-child');
+    const button = document.querySelector('button');
+    const loader = button.querySelector('.loader');
+    const buttonText = button.querySelector('span:last-child');
 
-            try {
-                loader.style.display = 'inline-block';
-                buttonText.textContent = '处理中...';
+    try {
+        loader.style.display = 'inline-block';
+        buttonText.textContent = '处理中...';
 
-                const response = await fetch('http://127.0.0.1:5000/transaction', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ sender, receiver, amount })
-                });
+        const response = await fetch('http://127.0.0.1:5000/transaction', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ sender, receiver, amount })
+        });
 
-                const data = await response.json();
+        const data = await response.json();
 
-                if (response.ok) {
-                    alert("交易成功！");
-                    document.getElementById('transactionForm').reset();
-                    fetchTransactions();
-                } else {
-                    alert(`交易失败: ${data.error}`);
-                }
-            } catch (error) {
-                console.error("网络错误:", error);
-                alert("网络错误，请稍后再试！");
-            } finally {
-                loader.style.display = 'none';
-                buttonText.textContent = '提交交易';
-            }
+        if (response.ok) {
+            alert("交易成功！");
+            document.getElementById('transactionForm').reset();
+            fetchTransactions(); // 刷新交易记录
+        } else {
+            alert(`交易失败: ${data.error}`);
         }
+    } catch (error) {
+        console.error("网络错误:", error);
+        alert("网络错误，请稍后再试！");
+    } finally {
+        loader.style.display = 'none';
+        buttonText.textContent = '提交交易';
+    }
+}
 
-        async function fetchTransactions() {
-            const tableBody = document.querySelector('.transactions-table tbody');
-            tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;"><div class="loader"></div></td></tr>';
+// 刷新交易记录
+async function fetchTransactions() {
+    const tableBody = document.querySelector('.transactions-table tbody');
+    tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;"><div class="loader"></div></td></tr>';
 
-            try {
-                const response = await fetch('http://127.0.0.1:5000/chain');
-                const data = await response.json();
+    try {
+        const response = await fetch('http://127.0.0.1:5000/chain');
+        const data = await response.json();
 
-                if (response.ok) {
-                    tableBody.innerHTML = '';
-                    data.chain.forEach(block => {
-                        if (block.index > 0) { // 跳过创世区块
-                            block.transactions.forEach(tx => {
-                                const row = document.createElement('tr');
-                                row.innerHTML = `
-                                    <td>${block.index}</td>
-                                    <td>${tx.data.sender}</td>
-                                    <td>${tx.data.receiver}</td>
-                                    <td>${tx.data.amount}</td>
-                                    <td>${new Date(tx.data.timestamp * 1000).toLocaleString()}</td>
-                                `;
-                                tableBody.appendChild(row);
-                            });
-                        }
+        if (response.ok) {
+            tableBody.innerHTML = '';
+            data.chain.forEach(block => {
+                if (block.index > 0) { // 跳过创世区块
+                    block.transactions.forEach(tx => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${block.index}</td>
+                            <td>${tx.data.sender}</td>
+                            <td>${tx.data.receiver}</td>
+                            <td>${tx.data.amount}</td>
+                            <td>${new Date(tx.data.timestamp * 1000).toLocaleString()}</td>
+                        `;
+                        tableBody.appendChild(row);
                     });
-                } else {
-                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">加载交易记录失败，请稍后再试！</td></tr>';
                 }
-            } catch (error) {
-                console.error("网络错误:", error);
-                tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">加载交易记录失败，请稍后再试！</td></tr>';
-            }
+            });
+        } else {
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">加载交易记录失败，请稍后再试！</td></tr>';
         }
+    } catch (error) {
+        console.error("网络错误:", error);
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">加载交易记录失败，请稍后再试！</td></tr>';
+    }
+}
 
-        // 初始化时加载交易记录
-        fetchTransactions();
-    </script>
+// 初始化时加载交易记录
+fetchTransactions();
+</script>
 </body>
 </html>

@@ -38,21 +38,24 @@ def get_public_key():
 
 @app.route('/transaction', methods=['POST'])
 def add_transaction():
-    """添加交易到待处理列表"""
     data = request.json
+    if not data:
+        return jsonify({"error": "Invalid request data"}), 400
+
     transaction = {
         "data": data,
         "public_key": public_key_hex,
         "signature": wallet.sign_transaction(json.dumps(data, sort_keys=True))
     }
+
     if blockchain.add_transaction(transaction):
         return jsonify({"message": "Transaction added successfully"})
-    return jsonify({"message": "Invalid transaction"}), 400
+    else:
+        return jsonify({"error": "Invalid transaction"}), 400
 
 
 @app.route('/mine', methods=['GET'])
 def mine():
-    """挖矿：处理待处理的交易并生成新区块"""
     if blockchain.mine_pending_transactions():
         # 保存新区块到数据库
         last_block = blockchain.chain[-1]

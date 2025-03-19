@@ -10,7 +10,10 @@ from aihymk import Wallet
 from core_mk import Blockchain
 # 引入数据存储模块
 from sql_mk import init_db, save_block, fetch_block
+from flask_cors import CORS
 
+app = Flask(__name__)
+CORS(app)  # 启用 CORS
 # 配置日志
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -50,7 +53,7 @@ def add_transaction():
     """添加交易到待处理列表"""
     try:
         data = request.json
-        if not data:
+        if not data or 'sender' not in data or 'receiver' not in data or 'amount' not in data:
             return jsonify({"error": "Invalid request data"}), 400
 
         # 构造交易数据
@@ -71,7 +74,6 @@ def add_transaction():
     except Exception as e:
         logging.error(f"Error adding transaction: {e}")
         return jsonify({"error": "Internal server error"}), 500
-
 
 @app.route('/mine', methods=['GET'])
 def mine():
